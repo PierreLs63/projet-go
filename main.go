@@ -22,7 +22,7 @@ func main() {
 	var wg sync.WaitGroup //  initialise a counter             // one go routine to wait for
 	canal := make(chan uint8)
 	start := time.Now()
-	for i := 0; i < len(a); i++ { //ir huyhjg
+	for i := 0; i < len(a); i++ { //ir huyhjg vkiyf
 		for j := 0; j < len(a); j++ {
 			wg.Add(1)
 			go func(i int, j int) {
