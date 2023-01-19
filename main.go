@@ -12,6 +12,7 @@ import (
 
 var A [][]int
 var B [][]int
+var M [][]int
 
 func Read() {
 	// Ouvrez le fichier en mode lecture
@@ -99,6 +100,7 @@ func main() {
 	}
 	for l := 0; l < len(A)*len(A); l++ {
 		res := <-canal
+		M = ordonnerMat(res, M)
 		fmt.Println(res)
 	}
 	fmt.Println(time.Since(start))
@@ -114,4 +116,11 @@ func cumputeCase(c chan [3]int, m1 [][]int, m2 [][]int, i int, j int) {
 	res[1] = i
 	res[2] = j
 	c <- res
+}
+
+func ordonnerMat(c [3]int, M [][]int) [][]int {
+
+	M[c[1]][c[2]] = c[0]
+
+	return M
 }
