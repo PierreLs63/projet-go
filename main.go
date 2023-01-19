@@ -85,6 +85,9 @@ func Read() {
 }
 func main() {
 	Read()
+	for i := 0; i < len(A); i++ {
+		M = append(M, make([]int, len(B[0])))
+	}
 	var wg sync.WaitGroup //  initialise a counter
 	fmt.Println(A)
 	canal := make(chan [3]int, 2)
@@ -100,11 +103,11 @@ func main() {
 	}
 	for l := 0; l < len(A)*len(A); l++ {
 		res := <-canal
-		M = ordonnerMat(res, M)
-		fmt.Println(res)
+		M[res[1]][res[2]] = res[0]
 	}
 	fmt.Println(time.Since(start))
 	wg.Wait() // block until all routines are done executing
+	fmt.Println(M)
 }
 
 func cumputeCase(c chan [3]int, m1 [][]int, m2 [][]int, i int, j int) {
@@ -116,11 +119,4 @@ func cumputeCase(c chan [3]int, m1 [][]int, m2 [][]int, i int, j int) {
 	res[1] = i
 	res[2] = j
 	c <- res
-}
-
-func ordonnerMat(c [3]int, M [][]int) [][]int {
-
-	M[c[1]][c[2]] = c[0]
-
-	return M
 }
