@@ -6,13 +6,20 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync"
-	"time"
 )
 
 var A [][]int
 var B [][]int
 var M [][]int
+var PA *[][]int = &A
+var PB *[][]int = &B
+
+type jobStruct struct {
+	PA *[][]int
+	PB *[][]int
+	i  int
+	j  int
+}
 
 func Read() {
 	// Ouvrez le fichier en mode lecture
@@ -85,38 +92,45 @@ func Read() {
 }
 func main() {
 	Read()
+	fmt.Print("hello\n")
 	for i := 0; i < len(A); i++ {
 		M = append(M, make([]int, len(B[0])))
 	}
-	var wg sync.WaitGroup //  initialise a counter
-	fmt.Println(A)
-	canal := make(chan [3]int, 2)
-	start := time.Now()
-	for i := 0; i < len(A); i++ {
-		for j := 0; j < len(B[0]); j++ {
-			wg.Add(1)
-			go func(i int, j int) {
-				defer wg.Done()
-				cumputeCase(canal, A, B, i, j)
-			}(i, j)
-		}
+	const N = 10
+	jobchan := make(chan jobStruct, N)
+	resultchan := make(chan [3]int, 2)
+	for i := 0; i < 10; i++ {
+		go computeCase(resultchan, jobchan)
 	}
-	for l := 0; l < len(A)*len(A); l++ {
-		res := <-canal
+	fmt.Print("hello2\n")
+	go func(PA *[][]int, PB *[][]int) {
+		for i := 0; i < len(A); i++ {
+			for j := 0; j < len(B[0]); j++ {
+				job := jobStruct{PA, PB, i, j}
+				jobchan <- job
+			}
+		}
+	}(PA, PB)
+	fmt.Print("hello3\n")
+	for l := 0; l < len(A)*len(B[0]); l++ {
+		res := <-resultchan
 		M[res[1]][res[2]] = res[0]
 	}
-	fmt.Println(time.Since(start))
-	wg.Wait() // block until all routines are done executing
 	fmt.Println(M)
 }
 
-func cumputeCase(c chan [3]int, m1 [][]int, m2 [][]int, i int, j int) {
+func computeCase(c chan [3]int, r chan jobStruct) {
 	var res [3]int
+	var temp = <-r
+
+	var m1 = *(temp.PA)
+	var m2 = *(temp.PB)
 	res[0] = 0
-	for k := 0; k < len(m1[0]); k++ {
-		res[0] += m1[i][k] * m2[k][j]
+	res[1] = temp.i
+	res[2] = temp.j
+	for k := 0; k < len((*(temp.PA))[0]); k++ {
+		res[0] += m1[temp.i][k] * m2[k][temp.j]
 	}
-	res[1] = i
-	res[2] = j
+
 	c <- res
 }
